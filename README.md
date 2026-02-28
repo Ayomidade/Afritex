@@ -1,0 +1,2 @@
+AFRITEX proposes a structured digital marketplace that enables independent African fashion designers to showcase products, manage sales efficiently, and reach wider customers.
+The platform aims to bridge the gap between visibility and structured digital commerce within Africa’s fashion industry.
