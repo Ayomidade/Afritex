@@ -7,7 +7,7 @@ import sequelize from "./src/MySql/config/db.js";
 const User = sequelize.define(
   'User',
   {
-    userid: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,

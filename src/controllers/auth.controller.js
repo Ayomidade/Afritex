@@ -1,44 +1,56 @@
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
+import User from "../models/user.model";
+import sequelize from "../MySql/config/db";
 
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, username, email, password, role } = req.body;
-    if (!name || !username || !email || !password) {
-      return res
-        .status(400)
-        .json({ status: "Error", message: "All fields are required." });
+    const { firstName, lastName, role, email, password, phoneNumber } =
+      req.body;
+    if (!firstName || !lastName || !email || !password || phoneNumber) {
+      const error = new Error("All fields are required.");
+      error.statusCode = 400;
+      throw error;
     }
 
-    const existingUser = null;
+    // CHECK FOR EXISTING USER
+    const [existingUser] = await User.findOne({ where: { email } });
+
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ status: "Error", message: "User already exists." });
+      const error = new Error("User already exists.");
+      error.statusCode(409);
+      throw error;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    // console.log(hashedPassword)
 
-    const newUser = {
-      id: Date.now(),
-      name,
-      username,
+    const newUser = User.create({
+      firstName,
+      lastName,
+      role: role || "customer",
       email,
       password: hashedPassword,
-      role: role || "Customer",
-    };
+      phoneNumber,
+    });
 
     const token = JWT.sign(
-      { id: newUser.id, role: newUser.role },
+      { id: newUser.userId, role: newUser.role },
       process.env.JWT_SECRET,
-      { expiresIn: "4d" },
+      { expiresIn: "2d" },
     );
 
     res.status(201).json({
       status: "Success",
       message: "User registered successfully",
-      user: newUser,
+      data: {
+        user: {
+          id: newUser.userId,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          email: newUser.email,
+          role: newUser.role,
+        },
+      },
       token,
     });
   } catch (error) {
@@ -48,28 +60,23 @@ export const registerUser = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       const error = new Error("All fields are required.");
       error.statusCode = 400;
-      throw(error)
-      // return res
-      //   .status(400)
-      //   .json({ status: "Error", message: "All fields are required." });
+      throw error;
     }
+    const user = await User.findOne({ where: { email } });
 
-    const user = {
-      id: Date.now(),
-      name: "John Doe",
-      username: "johndoe",
-      email: "john@doe.com",
-      password: await bcrypt.hash("123456789", 10),
-      role: "Customer",
-    };
+    if (!user) {
+      const error = new Error("User doesn't exists.");
+      error.statusCode(401);
+      throw error;
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (username !== user.username || !isMatch) {
+    if (!isMatch) {
       return res
         .status(400)
         .json({ status: "Error", message: "Invalid credentials." });
@@ -78,21 +85,46 @@ export const loginUser = async (req, res, next) => {
     const token = JWT.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "4d" },
+      { expiresIn: "2d" },
     );
 
     res.status(200).json({
       status: "Success",
       message: "Login successful.",
       data: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
+        id: user.userId,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         role: user.role,
       },
       token,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attribute: [
+        "userId",
+        "firstName",
+        "lastName",
+        "email",
+        "role",
+        "phoneNumber",
+      ],
+    });
+
+    if (!user) {
+      const error = new Error("User not found.");
+      error.statusCode(404);
+      throw error;
+    }
+
+    return res.status(200).json({ status: "Success", data: user });
   } catch (error) {
     next(error);
   }
