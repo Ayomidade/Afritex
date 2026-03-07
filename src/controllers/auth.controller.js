@@ -50,9 +50,12 @@ export const loginUser = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res
-        .status(400)
-        .json({ status: "Error", message: "All fields are required." });
+      const error = new Error("All fields are required.");
+      error.statusCode = 400;
+      throw(error)
+      // return res
+      //   .status(400)
+      //   .json({ status: "Error", message: "All fields are required." });
     }
 
     const user = {
