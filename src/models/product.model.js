@@ -27,7 +27,19 @@ const Product = sequelize.define(
     productStatus:{
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    productPrice:{
+      type: DataTypes.FLOAT,
+      allowNull: false
+    },
+    productImage:{
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    storeId:{
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
 );
 

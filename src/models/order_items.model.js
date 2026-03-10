@@ -22,7 +22,7 @@ const OrderItem = sequelize.define(
     priceAtPurchase: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
-    }
+    },
   }
 );
 
