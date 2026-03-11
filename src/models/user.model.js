@@ -1,6 +1,6 @@
 
 import { DataTypes } from "sequelize";
-import sequelize from "./src/MySql/config/db.js";
+import sequelize from "../MySql/config/db.js";
 
 
 
@@ -23,7 +23,6 @@ const User = sequelize.define(
     },
     email:{
       type: DataTypes.STRING,
-      unique: true,
       allowNull: false
     },
     phoneNumber:{
@@ -33,6 +32,10 @@ const User = sequelize.define(
     role:{
         type: DataTypes.ENUM('customer', 'designer', 'admin'),
         allowNull: false
+    },
+    password:{
+      type: DataTypes.STRING,
+      allowNull: false 
     }
   },
 );

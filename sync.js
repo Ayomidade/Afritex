@@ -1,19 +1,16 @@
+import sequelize from "../MySql/config/db.js";   // ✔ correct path, correct case
+import Relationships from "./relationship.js";      // ✔ correct file extension
 
-import { DataTypes } from "sequelize";
-import sequelize from "./src/MySql/config/db.js";
-
-import  { User, Product, Order, OrderItem } from './relationship.js';  // ensures models + relations are loaded
-
-async function syncDB() {
+async function syncModels() {
   try {
-    await sequelize.authenticate();
-    console.log("Connected to MySQL");
-
-    await sequelize.sync({ alter: true }); 
-    console.log("Database synchronized successfully");
-  } catch (error) {
-    console.error("Error connecting to MySQL:", error);
+    await sequelize.sync({ alter: true });
+    console.log("Database schema synced to codebase.");
+    process.exit(0);
+  } catch (err) {
+    console.error("Sync error:", err);
+    process.exit(1);
   }
 }
 
-syncDB();
+syncModels();
+
