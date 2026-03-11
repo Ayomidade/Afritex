@@ -1,12 +1,12 @@
 
 import { DataTypes } from "sequelize";
-import sequelize from "./src/MySql/config/db.js";
+import sequelize from "../MySql/config/db.js";
 
 
 const Product = sequelize.define(
   'Product',
   {
-    productid: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,

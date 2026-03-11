@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import sequelize from './src/MySql/config/db.js';
+import sequelize from "./src/MySql/config/db.js";
 
 import User from "./src/models/user.model.js";
 import Product from "./src/models/product.model.js";
@@ -62,5 +62,26 @@ Order.belongsTo(User, {
   targetKey: 'userid',
 });
 
-export default Relationships;
 
+//SYNCING MY CODEBASE WITH THE DATABASE
+
+// (async () => {
+//   try {
+//     console.log("Connecting to MySQL…");
+//     await sequelize.authenticate();
+//     console.log("✓ DB connection OK");
+
+//     // If you want to see generated SQL, temporarily set logging: console.log in db.js
+//     await sequelize.sync({ alter: true }); // or { force: true } in DEV only
+//     console.log("✓ Models synced with MySQL");
+
+//     // quick probe to confirm tables exist
+//     const [tables] = await sequelize.query("SHOW TABLES;");
+//     console.log("Tables:", tables);
+
+//     process.exit(0);
+//   } catch (err) {
+//     console.error("✗ Sync failed:", err);
+//     process.exit(1);
+//   }
+// })();
