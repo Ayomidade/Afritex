@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
-import User from "../models/user.model";
-import sequelize from "../MySql/config/db";
+import User from "../models/user.model.js";
+// import sequelize from "../MySql/config/db.js";
 
 export const registerUser = async (req, res, next) => {
   try {
