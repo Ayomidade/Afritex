@@ -32,8 +32,8 @@ const Product = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: false
     },
-    productImage:{
-      type: DataTypes.STRING,
+    productImages:{
+      type: DataTypes.JSON,
       allowNull: false
     },
     storeId:{

@@ -24,6 +24,8 @@ export const registerUser = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const profileImage = req.file ? req.file.path : null;
+
     const newUser = User.create({
       firstName,
       lastName,
@@ -31,6 +33,7 @@ export const registerUser = async (req, res, next) => {
       email,
       password: hashedPassword,
       phoneNumber,
+      profileImage,
     });
 
     const token = JWT.sign(
@@ -49,6 +52,7 @@ export const registerUser = async (req, res, next) => {
           lastName: newUser.lastName,
           email: newUser.email,
           role: newUser.role,
+          profileImage,
         },
       },
       token,
@@ -97,6 +101,7 @@ export const loginUser = async (req, res, next) => {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
+        profileImage: user.profileImage,
       },
       token,
     });
@@ -115,6 +120,8 @@ export const getCurrentUser = async (req, res, next) => {
         "email",
         "role",
         "phoneNumber",
+        "profileImage",
+        "isVerified",
       ],
     });
 
