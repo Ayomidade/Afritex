@@ -1,4 +1,6 @@
+import cloudinary from "../config/cloudinary.js";
 import User from "../models/user.model.js";
+import { getPublicIdFromUrl } from "../utils/cloudinary.utils.js";
 
 export const getUserProfile = async (req, res, next) => {
   try {
@@ -125,28 +127,29 @@ export const getUserById = async (req, res, next) => {
 
 export const updateProfileImage = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(req.user.userId);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (!req.file) {
-      return res.status(400).json({
-        message: "No image uploaded",
-      });
+      return res.status(400).json({ message: "No image uploaded" });
     }
 
+    // delete old image if exists
+    if (user.profileImage) {
+      const publicId = getPublicIdFromUrl(user.profileImage);
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    // save new image
     await user.update({
       profileImage: req.file.path,
     });
 
     res.status(200).json({
       status: "success",
-      message: "Profile image updated",
       profileImage: user.profileImage,
     });
   } catch (error) {
