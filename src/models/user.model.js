@@ -1,13 +1,10 @@
-
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
-
-
 const User = sequelize.define(
-  'User',
+  "User",
   {
-    userid: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
@@ -15,29 +12,38 @@ const User = sequelize.define(
     },
     firstName: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    lastName:{
+    lastName: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    email:{
+    email: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    phoneNumber:{
-       type: DataTypes.INTEGER,
-       allowNull: false
-    },
-    role:{
-        type: DataTypes.ENUM('customer', 'designer', 'admin'),
-        allowNull: false
-    },
-    password:{
+    phoneNumber: {
       type: DataTypes.STRING,
-      allowNull: false 
-    }
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM("customer", "designer", "admin"),
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    profileImage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
+  { timestamps: true },
 );
 
 export default User;

@@ -23,6 +23,10 @@ const OrderItem = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
+orderId: {
+  type: DataTypes.INTEGER,
+  allowNull: false
+}
   }
 );
 
