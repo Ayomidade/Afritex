@@ -1,13 +1,25 @@
 import Product from "../models/product.model";
+import Store from "../models/store.model"
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { productName, productDescription, productStatus } = req.body;
+    const { productName, productDescription, productStatus, productPrice, stock } = req.body;
+    const productImages=req.files?req.files.map(file=>file.path):[];
+
+    const designerId=req.user.userId;
+
+    const store=await Store.findOne({where:{designerId}})
+    if (!store) {
+      return res.status(400).json({message:"Create a store before adding products."})
+    }
+
+    const storeId=store.storeId
+
 
     const product = await Product.create({
       productName,
       productDescription,
-      designerId: req.user.userId,
+      // designerId: req.user.userId,
       productStatus,
     });
 

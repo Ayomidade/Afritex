@@ -6,7 +6,7 @@ import sequelize from "../MySql/config/db.js";
 const Product = sequelize.define(
   'Product',
   {
-    id: {
+    productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
@@ -20,14 +20,10 @@ const Product = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false
     },
-    designerId:{
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    productStatus:{
-      type: DataTypes.STRING,
-      allowNull: false
-    },
+    // productStatus:{
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // },
     productPrice:{
       type: DataTypes.FLOAT,
       allowNull: false
@@ -35,6 +31,10 @@ const Product = sequelize.define(
     productImages:{
       type: DataTypes.JSON,
       allowNull: false
+    },
+    stock:{
+      type:DataTypes.INTEGER,
+      defaultValue:0
     },
     storeId:{
       type: DataTypes.INTEGER,
