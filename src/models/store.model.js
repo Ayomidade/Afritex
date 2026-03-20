@@ -22,7 +22,7 @@ const Store = sequelize.define("Store", {
     type: DataTypes.STRING,
   },
   storebanner: {
-    tyype: DataTypes.STRING,
+    type: DataTypes.STRING,
   },
   designerId: {
     type: DataTypes.INTEGER,

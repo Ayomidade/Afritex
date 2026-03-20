@@ -5,7 +5,7 @@ import {
   createProduct,
   deleteProduct,
   getAllProducts,
-  getProductByStore,
+  // getProductByStore,
   getSingleProduct,
   updateProduct,
 } from "../controllers/product.controller.js";
@@ -20,15 +20,15 @@ productRouter.post(
 );
 
 productRouter.get("/", getAllProducts);
-productRouter.get(":/id", getSingleProduct);
+productRouter.get("/:id", getSingleProduct);
 productRouter.put(
-  ":/id",
+  "/:id",
   isAuthenticated,
   isAuthorized("designer"),
   updateProduct,
 );
 productRouter.delete(
-  ":/id",
+  "/:id",
   isAuthenticated,
   isAuthorized("designer", "admin"),
   deleteProduct,

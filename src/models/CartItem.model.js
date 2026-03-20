@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../MySql/config/db";
+import sequelize from "../MySql/config/db.js";
 
 const CartItem = sequelize.define(
   "CartItem",
