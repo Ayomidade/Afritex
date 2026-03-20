@@ -39,6 +39,9 @@ export const updateUserProfile = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.userId !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
 
     const { firstName, lastName, phoneNumber } = req.body;
 
@@ -63,6 +66,9 @@ export const deleteUserAccount = async (req, res, next) => {
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+    if (user.userId !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     await user.destroy();
@@ -101,7 +107,7 @@ export const getAllUsers = async (req, res, next) => {
 
 export const getUserById = async (req, res, next) => {
   try {
-    const userId = req.params;
+    const userId = req.params.id;
     const user = await User.findByPk(userId, {
       attributes: [
         "userId",
@@ -127,7 +133,8 @@ export const getUserById = async (req, res, next) => {
 
 export const updateProfileImage = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.user.userId);
+    const userId = req.user.userId;
+    const user = await User.findByPk(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -135,6 +142,10 @@ export const updateProfileImage = async (req, res, next) => {
 
     if (!req.file) {
       return res.status(400).json({ message: "No image uploaded" });
+    }
+    
+    if (user.userId !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     // delete old image if exists

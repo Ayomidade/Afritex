@@ -1,10 +1,8 @@
-
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
-
 const Product = sequelize.define(
-  'Product',
+  "Product",
   {
     productId: {
       type: DataTypes.INTEGER,
@@ -14,33 +12,33 @@ const Product = sequelize.define(
     },
     productName: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    productDescription:{
+    productDescription: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: false,
     },
-    // productStatus:{
-    //   type: DataTypes.STRING,
-    //   allowNull: false
-    // },
-    productPrice:{
+    productPrice: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
-    productImages:{
+    category: {
+      type: DataTypes.STRING,
+    },
+    productImages: {
       type: DataTypes.JSON,
-      allowNull: false
+      allowNull: false,
     },
-    stock:{
-      type:DataTypes.INTEGER,
-      defaultValue:0
+    stock: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
-    storeId:{
+    storeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
   },
+  { timestamps: true },
 );
 
 export default Product;

@@ -16,13 +16,13 @@ userRouter.use(isAuthenticated);
 
 userRouter.get("/profile", getUserProfile);
 
-userRouter.put("/profile", updateUserProfile);
+userRouter.put("/profile/:id", updateUserProfile);
 
 userRouter.delete("/", deleteUserAccount);
 
-userRouter.get("/", isAdmin, getAllUsers);
+userRouter.get("/", getAllUsers);
 
-userRouter.get("/:userId", isAdmin, getUserById);
+userRouter.get("/:id", getUserById);
 userRouter.put("/profile/image", uploadProfileImage, updateProfileImage);
 
 export default userRouter;
