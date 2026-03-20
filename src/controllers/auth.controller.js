@@ -7,7 +7,7 @@ export const registerUser = async (req, res, next) => {
   try {
     const { firstName, lastName, role, email, password, phoneNumber } =
       req.body;
-    if (!firstName || !lastName || !email || !password || phoneNumber) {
+    if (!firstName || !lastName || !email || !password || !phoneNumber || !role) {
       const error = new Error("All fields are required.");
       error.statusCode = 400;
       throw error;
@@ -29,7 +29,7 @@ export const registerUser = async (req, res, next) => {
     const newUser = User.create({
       firstName,
       lastName,
-      role: role || "customer",
+      role,
       email,
       password: hashedPassword,
       phoneNumber,
