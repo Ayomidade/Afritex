@@ -9,6 +9,7 @@ import productRouter from "./routes/product.route.js";
 import storeRouter from "./routes/store.route.js";
 import adminRouter from "./routes/admin.route.js";
 import cartRouter from "./routes/cart.route.js";
+import "../relationship.js";
 
 const app = express();
 app.use(json());
@@ -18,7 +19,7 @@ app.get("/", (req, res) => {
   res.json({ status: "Success", message: "Welcome to Afritex API" });
 });
 
-app.use("/api/auth/", rateLimit, authRouter);
+app.use("/api/auth/", authRouter);
 app.use("/api/user/", userRouter);
 app.use("/api/designer", designerRouter);
 app.use("/api/products", productRouter);

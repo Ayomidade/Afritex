@@ -1,34 +1,30 @@
-
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
-
+// Represent the entire purchase
 const Order = sequelize.define(
-  'Order',
+  "Order",
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
-    },
-    dateOrdered: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    orderStatus: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    }
-  }
+      allowNull: false,
+    },
+   
+    totalAmount: {
+      type: DataTypes.FLOAT,
+    },
+    // dateOrdered: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    // },
+  },
+  { timestamps: true },
 );
 
 export default Order;
