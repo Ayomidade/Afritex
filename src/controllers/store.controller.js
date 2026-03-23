@@ -11,8 +11,11 @@ export const createStore = async (req, res, next) => {
     }
 
     const { storeName, storeDescription, socialLinks } = req.body;
+
     const storeLogo = req.files?.storeLogo?.[0]?.path || null;
-    const storeBanner = req.filees?.storeBanner?.[0]?.path || null;
+
+    //  FIXED TYPO (filees → files)
+    const storeBanner = req.files?.storeBanner?.[0]?.path || null;
 
     const store = await Store.create({
       storeName,
@@ -57,9 +60,11 @@ export const getAllStore = async (req, res, next) => {
       ],
     });
 
-    res
-      .status(200)
-      .json({ status: "Success", results: stores.length, data: stores });
+    res.status(200).json({
+      status: "Success",
+      results: stores.length,
+      data: stores,
+    });
   } catch (error) {
     next(error);
   }
@@ -87,9 +92,11 @@ export const getMyStore = async (req, res, next) => {
 export const updateStore = async (req, res, next) => {
   try {
     const designerId = req.user.userId;
+
     const store = await Store.findOne({ where: { designerId } });
+
     if (!store) {
-      return res.status(404).json({ messasge: "Store not found." });
+      return res.status(404).json({ message: "Store not found." });
     }
 
     if (store.designerId !== designerId) {
@@ -97,15 +104,18 @@ export const updateStore = async (req, res, next) => {
     }
 
     const { storeName, storeDescription, socialLinks } = req.body;
-    const storeLogo = req.files?.storeLogo?.[0]?.path || null;
-    const storeBanner = req.filees?.storeBanner?.[0]?.path || null;
+
+    const storeLogo = req.files?.storeLogo?.[0]?.path || store.storeLogo;
+
+    //  FIXED TYPO
+    const storeBanner = req.files?.storeBanner?.[0]?.path || store.storeBanner;
 
     await store.update({
       storeName: storeName || store.storeName,
       storeDescription: storeDescription || store.storeDescription,
       socialLinks: socialLinks || store.socialLinks,
-      storeLogo: storeLogo || store.storeLogo,
-      storeBanner: storeBanner || store.storeBanner,
+      storeLogo,
+      storeBanner,
     });
 
     res.status(200).json({ status: "Success", data: store });
@@ -118,9 +128,11 @@ export const deleteStore = async (req, res, next) => {
   try {
     const designerId = req.user.userId;
     const storeId = req.params.id;
+
     const store = await Store.findByPk(storeId);
+
     if (!store) {
-      return res.status(404).json({ messasge: "Store not found." });
+      return res.status(404).json({ message: "Store not found." });
     }
 
     if (store.designerId !== designerId) {
@@ -129,7 +141,7 @@ export const deleteStore = async (req, res, next) => {
 
     await store.destroy();
 
-    res.status(200).send({ message: "Store deleted successfully." });
+    res.status(200).json({ message: "Store deleted successfully." });
   } catch (error) {
     next(error);
   }
@@ -137,12 +149,19 @@ export const deleteStore = async (req, res, next) => {
 
 export const getStoreProducts = async (req, res, next) => {
   try {
-    const storeId = req.params.storeId;
+    const { storeId } = req.params;
 
-    const products = await Product.findAll({ where: storeId });
-    res
-      .status(200)
-      .json({ status: "Success", results: products.length, data: products });
+    //  WRONG BEFORE: { where: storeId }
+    //  FIXED:
+    const products = await Product.findAll({
+      where: { storeId },
+    });
+
+    res.status(200).json({
+      status: "Success",
+      results: products.length,
+      data: products,
+    });
   } catch (error) {
     next(error);
   }

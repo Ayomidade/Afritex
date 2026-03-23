@@ -1,33 +1,33 @@
-
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
-
 const Order = sequelize.define(
-  'Order',
+  "Order",
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
+
     dateOrdered: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
     },
+
     orderStatus: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
+
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    }
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: true,
   }
 );
 

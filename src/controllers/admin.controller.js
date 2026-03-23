@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Store from "../models/store.model.js";
 import Product from "../models/product.model.js";
+import { sendEmail, designerVerificationTemplate } from "../services/email.service.js";
 
 export const getAllUsers = async (req, res, next) => {
   try {
@@ -27,6 +28,7 @@ export const getAllUsers = async (req, res, next) => {
 export const getAllDesigners = async (req, res, next) => {
   try {
     const designers = await User.findAll({ where: { role: "designer" } });
+
     res
       .status(200)
       .json({ status: "Success", result: designers.length, data: designers });
@@ -38,7 +40,8 @@ export const getAllDesigners = async (req, res, next) => {
 export const verifyDesigners = async (req, res, next) => {
   try {
     const designerId = req.params.id;
-    const designer = await User.findByPk({ designerId });
+
+    const designer = await User.findByPk(designerId);
 
     if (!designer || designer.role !== "designer") {
       return res.status(404).json({ message: "Designer not found." });
@@ -46,9 +49,17 @@ export const verifyDesigners = async (req, res, next) => {
 
     await designer.update({ isVerified: true });
 
-    res
-      .status(200)
-      .json({ status: "Success", message: "Designer verified successfully" });
+    // verification mail
+    sendEmail({
+      to: designer.email,
+      subject: "Designer Verification Successful ",
+      html: designerVerificationTemplate(designer.firstName),
+    });
+
+    res.status(200).json({
+      status: "Success",
+      message: "Designer verified successfully",
+    });
   } catch (error) {
     next(error);
   }
@@ -57,6 +68,7 @@ export const verifyDesigners = async (req, res, next) => {
 export const getAllStores = async (req, res, next) => {
   try {
     const stores = await Store.findAll();
+
     res
       .status(200)
       .json({ status: "Success", result: stores.length, data: stores });
@@ -80,7 +92,8 @@ export const getAllProducts = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.id;
-    const product = Product.findByPk(productId);
+
+    const product = await Product.findByPk(productId);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found." });
@@ -88,9 +101,10 @@ export const deleteProduct = async (req, res, next) => {
 
     await product.destroy();
 
-    res
-      .status(200)
-      .json({ status: "Succcess", message: "Product removed by admin" });
+    res.status(200).json({
+      status: "Success",
+      message: "Product removed by admin",
+    });
   } catch (error) {
     next(error);
   }
@@ -99,7 +113,8 @@ export const deleteProduct = async (req, res, next) => {
 export const deleteStore = async (req, res, next) => {
   try {
     const storeId = req.params.id;
-    const store = Store.findByPk(storeId);
+
+    const store = await Store.findByPk(storeId);
 
     if (!store) {
       return res.status(404).json({ message: "Store not found." });
@@ -107,9 +122,10 @@ export const deleteStore = async (req, res, next) => {
 
     await store.destroy();
 
-    res
-      .status(200)
-      .json({ status: "Success", message: "Store deleted successfully." });
+    res.status(200).json({
+      status: "Success",
+      message: "Store deleted successfully.",
+    });
   } catch (error) {
     next(error);
   }
@@ -118,7 +134,8 @@ export const deleteStore = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const user = User.findByPk(userId);
+
+    const user = await User.findByPk(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
@@ -126,13 +143,14 @@ export const deleteUser = async (req, res, next) => {
 
     await user.destroy();
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: "User account deleted successfully.",
-      });
+    res.status(200).json({
+      status: "Success",
+      message: "User account deleted successfully.",
+    });
   } catch (error) {
     next(error);
   }
 };
+
+
+
