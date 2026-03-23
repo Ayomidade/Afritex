@@ -1,10 +1,12 @@
 import Product from "../models/product.model.js";
 import Store from "../models/store.model.js";
+import dotenv from "dotenv";
+
 
 export const createStore = async (req, res, next) => {
   try {
     const designerId = req.user.userId;
-
+  
     const existingStore = await Store.findOne({ where: { designerId } });
     if (existingStore) {
       return res.status(400).json({ message: "Designer already has a store." });
@@ -21,13 +23,14 @@ export const createStore = async (req, res, next) => {
       storeLogo,
       storeBanner,
       designerId,
-    });
+  });
 
     res.status(201).json({ status: "Success", data: store });
-  } catch (error) {
+}catch (error) {
     next(error);
-  }
-};
+  }}
+
+
 
 export const getStoreById = async (req, res, next) => {
   try {
@@ -94,7 +97,7 @@ export const updateStore = async (req, res, next) => {
 
     if (store.designerId !== designerId) {
       return res.status(403).json({ message: "Unauthorized" });
-    }
+    }``
 
     const { storeName, storeDescription, socialLinks } = req.body;
     const storeLogo = req.files?.storeLogo?.[0]?.path || null;
