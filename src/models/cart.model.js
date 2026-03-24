@@ -14,7 +14,7 @@ const Cart = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default Cart;

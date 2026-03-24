@@ -1,22 +1,64 @@
+import { body, param, validationResult } from "express-validator";
 import Cart from "../models/cart.model.js";
-import CartItem from "../models/CartItem.model.js";
+import CartItem from "../models/cartItem.model.js";
 import Product from "../models/product.model.js";
 
+// ================= VALIDATION RULES =================
+export const addToCartValidation = [
+  body("productId")
+    .notEmpty().withMessage("Product ID is required.")
+    .isInt({ min: 1 }).withMessage("Product ID must be a valid number."),
+
+  body("quantity")
+    .notEmpty().withMessage("Quantity is required.")
+    .isInt({ min: 1 }).withMessage("Quantity must be at least 1."),
+];
+
+export const updateCartValidation = [
+  param("id")
+    .isInt({ min: 1 }).withMessage("Cart item ID must be a valid number."),
+
+  body("quantity")
+    .notEmpty().withMessage("Quantity is required.")
+    .isInt({ min: 1 }).withMessage("Quantity must be at least 1."),
+];
+
+/* =========================
+   ADD TO CART
+========================= */
 export const addtoCart = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: "Failed",
+        errors: errors.array().map((err) => ({
+          field: err.path,
+          message: err.msg,
+        })),
+      });
+    }
+
     const userId = req.user.userId;
     const { productId, quantity } = req.body;
 
-    const product = Product.findByPk(productId);
-
+    const product = await Product.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ message: "Product not found." });
+      return res.status(404).json({
+        status: "Failed",
+        message: "Product not found.",
+      });
     }
 
-    let cart = await Cart.findOne({
-      where: { userId },
-    });
+    // check stock before adding
+    if (product.stock < quantity) {
+      return res.status(400).json({
+        status: "Failed",
+        message: `Insufficient stock. Only ${product.stock} units available.`,
+      });
+    }
 
+    let cart = await Cart.findOne({ where: { userId } });
     if (!cart) {
       cart = await Cart.create({ userId });
     }
@@ -26,11 +68,23 @@ export const addtoCart = async (req, res, next) => {
     });
 
     if (existingItem) {
-      await existingItem.update({ quantity: existingItem.quantity + quantity });
+      const newQuantity = existingItem.quantity + quantity;
 
-      return res
-        .status(200)
-        .json({ message: "Cart updated", data: existingItem });
+      // check stock against new total quantity
+      if (product.stock < newQuantity) {
+        return res.status(400).json({
+          status: "Failed",
+          message: `Insufficient stock. Only ${product.stock} units available.`,
+        });
+      }
+
+      await existingItem.update({ quantity: newQuantity });
+
+      return res.status(200).json({
+        status: "Success",
+        message: "Cart updated",
+        data: existingItem,
+      });
     }
 
     const cartItem = await CartItem.create({
@@ -39,7 +93,7 @@ export const addtoCart = async (req, res, next) => {
       quantity,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "Success",
       message: "Product added to cart",
       data: cartItem,
@@ -49,6 +103,9 @@ export const addtoCart = async (req, res, next) => {
   }
 };
 
+/* =========================
+   GET MY CART
+========================= */
 export const getMyCart = async (req, res, next) => {
   try {
     const userId = req.user.userId;
@@ -57,35 +114,76 @@ export const getMyCart = async (req, res, next) => {
       where: { userId },
       include: {
         model: CartItem,
-        include: Product,
+        as: "items",
+        include: {
+          model: Product,
+          as: "product",
+        },
       },
     });
-    if (!cart) {
-      return res.status(404).json({ message: "Cart is empty" });
+
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Cart is empty",
+      });
     }
 
-    res.status(200).json({ status: "Success", data: cart });
+    res.status(200).json({
+      status: "Success",
+      data: cart,
+    });
   } catch (error) {
     next(error);
   }
 };
 
+/* =========================
+   UPDATE CART ITEM
+========================= */
 export const updateCartItem = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: "Failed",
+        errors: errors.array().map((err) => ({
+          field: err.path,
+          message: err.msg,
+        })),
+      });
+    }
+
     const cartItemId = req.params.id;
     const { quantity } = req.body;
     const userId = req.user.userId;
 
     const cart = await Cart.findOne({ where: { userId } });
+    if (!cart) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Cart not found",
+      });
+    }
 
     const cartItem = await CartItem.findOne({
-      where: {
-        cartItemId,
-        cartId: cart.cartId,
-      },
+      where: { cartItemId, cartId: cart.cartId },
     });
+
     if (!cartItem) {
-      return res.status(403).json({ message: "Unauthorized." });
+      return res.status(403).json({
+        status: "Failed",
+        message: "Unauthorized.",
+      });
+    }
+
+    // check stock before updating
+    const product = await Product.findByPk(cartItem.productId);
+    if (product && product.stock < quantity) {
+      return res.status(400).json({
+        status: "Failed",
+        message: `Insufficient stock. Only ${product.stock} units available.`,
+      });
     }
 
     await cartItem.update({ quantity });
@@ -100,46 +198,65 @@ export const updateCartItem = async (req, res, next) => {
   }
 };
 
+/* =========================
+   REMOVE CART ITEM
+========================= */
 export const removeCartItem = async (req, res, next) => {
   try {
     const cartItemId = req.params.id;
     const userId = req.user.userId;
 
     const cart = await Cart.findOne({ where: { userId } });
+    if (!cart) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Cart not found",
+      });
+    }
+
     const cartItem = await CartItem.findOne({
-      where: {
-        cartItemId,
-        cartId: cart.cartId,
-      },
+      where: { cartItemId, cartId: cart.cartId },
     });
+
     if (!cartItem) {
-      return res.status(403).json({ message: "Unauthorized." });
+      return res.status(403).json({
+        status: "Failed",
+        message: "Unauthorized.",
+      });
     }
 
     await cartItem.destroy();
 
-    res
-      .status(200)
-      .json({ status: "Success", message: "Item removed from cart" });
+    res.status(200).json({
+      status: "Success",
+      message: "Item removed from cart",
+    });
   } catch (error) {
     next(error);
   }
 };
 
+/* =========================
+   CLEAR CART
+========================= */
 export const clearCart = async (req, res, next) => {
   try {
     const userId = req.user.userId;
 
-    const cart = await Cart.findOne({
-      where: { userId },
-    });
+    const cart = await Cart.findOne({ where: { userId } });
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found." });
+      return res.status(404).json({
+        status: "Failed",
+        message: "Cart not found.",
+      });
     }
 
     await CartItem.destroy({ where: { cartId: cart.cartId } });
 
-    res.status(200).json({ status: "Success", message: "Cart cleared" });
+    res.status(200).json({
+      status: "Success",
+      message: "Cart cleared",
+    });
   } catch (error) {
     next(error);
   }

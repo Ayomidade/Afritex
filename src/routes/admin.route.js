@@ -2,26 +2,50 @@ import { Router } from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { isAdmin } from "../middlewares/isAuthorized.js";
 import {
-  deleteProduct,
-  deleteStore,
-  deleteUser,
-  getAllDesigners,
-  getAllProducts,
-  getAllStores,
+  getDashboardStats,
   getAllUsers,
+  deleteUser,
+  getAllCustomers,
+  getSingleCustomer,
+  getAllDesigners,
   verifyDesigners,
+  getAllStores,
+  deleteStore,
+  getAllProducts,
+  deleteProduct,
+  getAllOrders,
+  updateOrderStatus,
 } from "../controllers/admin.controller.js";
 
 const adminRouter = Router();
 adminRouter.use(isAuthenticated);
 adminRouter.use(isAdmin);
 
+// dashboard
+adminRouter.get("/dashboard", getDashboardStats);
+
+// users
 adminRouter.get("/users", getAllUsers);
+adminRouter.delete("/users/:id", deleteUser);
+
+// customers
+adminRouter.get("/customers", getAllCustomers);
+adminRouter.get("/customers/:id", getSingleCustomer);
+
+// designers
 adminRouter.get("/designers", getAllDesigners);
-adminRouter.get("/stores", getAllStores);
-adminRouter.get("/products", getAllProducts);
 adminRouter.patch("/verify-designer/:id", verifyDesigners);
-adminRouter.delete("/products/:id", deleteProduct);
+
+// stores
+adminRouter.get("/stores", getAllStores);
 adminRouter.delete("/stores/:id", deleteStore);
-// adminRouter.delete("/users/:id", deleteUser)
+
+// products
+adminRouter.get("/products", getAllProducts);
+adminRouter.delete("/products/:id", deleteProduct);
+
+// orders
+adminRouter.get("/orders", getAllOrders);
+adminRouter.patch("/orders/:id/status", updateOrderStatus);
+
 export default adminRouter;
