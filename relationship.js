@@ -9,7 +9,7 @@ import Store from "./src/models/store.model.js";
 import Order from "./src/models/order.model.js";
 import OrderItem from "./src/models/order_items.model.js";
 import Cart from "./src/models/cart.model.js";
-import CartItem from "./src/models/CartItem.model.js";
+import CartItem from "./src/models/cartItem.model.js";
 
 // =============================
 // USER ↔ STORE
