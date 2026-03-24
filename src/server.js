@@ -12,11 +12,11 @@ const startServer = async () => {
     console.log("Database connected successfully.");
 
     await sequelize.sync({ alter: true }); // ✅ safe — updates schema, never deletes data
-
     console.log("All models synchronized.");
 
-    app.listen(PORT, () => {
-      console.log(`Afritex server is running http://localhost:${PORT}`);
+    // ✅ RENDER FIX: Bind to '0.0.0.0' + explicit PORT
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Afritex server is running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Unable to start server:", error);
