@@ -38,7 +38,7 @@ const Product = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default Product;

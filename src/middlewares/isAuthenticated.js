@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { tokenBlacklist } from "../utils/tokenBlacklist.js";
 
 const isAuthenticated = (req, res, next) => {
   try {
@@ -13,9 +14,16 @@ const isAuthenticated = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
+    // check if token has been blacklisted (logged out)
+    if (tokenBlacklist.has(token)) {
+      return res.status(401).json({
+        status: "Error",
+        message: "Token has been invalidated. Please log in again.",
+      });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // FORCE STRUCTURE CONSISTENCY
     req.user = {
       userId: decoded.userId,
       email: decoded.email,
