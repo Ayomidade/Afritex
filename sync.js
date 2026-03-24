@@ -1,10 +1,10 @@
-import sequelize from "../MySql/config/db.js";   // ✔ correct path, correct case
-import Relationships from "./relationship.js";      // ✔ correct file extension
+import sequelize from "./MySql/config/db.js";
+import "../relationship.js"; // ensures all associations are loaded
 
 async function syncModels() {
   try {
     await sequelize.sync({ alter: true });
-    console.log("Database schema synced to codebase.");
+    console.log("Database synced successfully");
     process.exit(0);
   } catch (err) {
     console.error("Sync error:", err);
@@ -13,4 +13,7 @@ async function syncModels() {
 }
 
 syncModels();
+
+
+
 

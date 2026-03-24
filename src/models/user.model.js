@@ -42,8 +42,17 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    // ✅ password reset fields
+    resetToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    resetTokenExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default User;
