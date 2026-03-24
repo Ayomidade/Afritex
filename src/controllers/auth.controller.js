@@ -69,18 +69,23 @@ export const resetPasswordValidation = [
 // ================= REGISTER USER =================
 export const registerUser = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        status: "Failed",
-        errors: errors.array().map((err) => ({
-          field: err.path,
-          message: err.msg,
-        })),
-      });
+    const { firstName, lastName, role, email, password, phoneNumber } =
+      req.body;
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !phoneNumber ||
+      !role
+    ) {
+      const error = new Error("All fields are required.");
+      error.statusCode = 400;
+      throw error;
     }
 
-    const { firstName, lastName, role, email, password, phoneNumber } = req.body;
+    // CHECK FOR EXISTING USER
+    const existingUser = await User.findOne({ where: { email } });
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {

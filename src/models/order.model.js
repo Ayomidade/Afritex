@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
+// Represent the entire purchase
 const Order = sequelize.define(
   "Order",
   {
@@ -11,24 +12,20 @@ const Order = sequelize.define(
       allowNull: false,
     },
 
-    dateOrdered: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-
-    orderStatus: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+   
+    totalAmount: {
+      type: DataTypes.FLOAT,
+    },
+    // dateOrdered: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    // },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
 export default Order;

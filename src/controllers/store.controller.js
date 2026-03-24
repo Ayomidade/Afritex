@@ -2,6 +2,8 @@ import { body, validationResult } from "express-validator";
 import { Op } from "sequelize";
 import Product from "../models/product.model.js";
 import Store from "../models/store.model.js";
+import dotenv from "dotenv";
+
 
 // ================= VALIDATION RULES =================
 export const createStoreValidation = [
@@ -53,7 +55,7 @@ export const createStore = async (req, res, next) => {
     }
 
     const designerId = req.user.userId;
-
+  
     const existingStore = await Store.findOne({ where: { designerId } });
     if (existingStore) {
       return res.status(400).json({
@@ -73,13 +75,26 @@ export const createStore = async (req, res, next) => {
       storeLogo,
       storeBanner,
       designerId,
-    });
+  });
 
-    res.status(201).json({
-      status: "Success",
-      message: "Store created successfully.",
-      data: store,
-    });
+    res.status(201).json({ status: "Success", data: store });
+}catch (error) {
+    next(error);
+  }}
+
+
+
+export const getStoreById = async (req, res, next) => {
+  try {
+    const { storeId } = req.params;
+
+    const store = await Store.findByPk(storeId);
+
+    if (!store) {
+      return res.status(404).json({ message: "Store not found." });
+    }
+
+    res.status(200).json({ status: "Success", data: store });
   } catch (error) {
     next(error);
   }
@@ -175,11 +190,12 @@ export const updateStore = async (req, res, next) => {
 
     const store = await Store.findOne({ where: { designerId } });
     if (!store) {
-      return res.status(404).json({
-        status: "Failed",
-        message: "Store not found.",
-      });
+      return res.status(404).json({ messasge: "Store not found." });
     }
+
+    if (store.designerId !== designerId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }``
 
     // redundant check removed — findOne already scopes to designerId
     const { storeName, storeDescription, socialLinks } = req.body;
