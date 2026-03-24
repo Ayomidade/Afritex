@@ -1,27 +1,32 @@
-import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
-
+import Sequelize from 'sequelize';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  process.env.DBNAME,
+  process.env.DBUSER,
+  process.env.DBPASSWORD,
   {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    dialect: "mysql",
+    host: process.env.DBHOST,
+    port: Number(process.env.DBPORT),
+    dialect: 'mysql',
     logging: false,
+    // ADD THESE TIMEOUTS
+    dialectOptions: {
+      connectTimeout: 60000,  // 60 seconds
+      acquireTimeout: 60000,
+      timeout: 60000
+    },
     pool: {
       max: 5,
       min: 0,
       acquire: 60000,
-      idle: 10000,
-    },
-    dialectOptions: {
-      connectTimeout: 60000,
-    },
+      idle: 10000
+    }
   }
 );
 
 export default sequelize;
+
+
+

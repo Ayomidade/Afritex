@@ -8,18 +8,39 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
+    console.log("Attempting database connection...");
+    console.log(`DB Config: ${process.env.DBHOST}:${process.env.DBPORT}`);
+
+    // Test connection with longer timeout
     await sequelize.authenticate();
-    console.log("Database connected successfully.");
+    console.log("✅ Database connected successfully.");
 
-    await sequelize.sync({ alter: true }); // ✅ safe — updates schema, never deletes data
-    console.log("All models synchronized.");
+    // Sync models (creates tables)
+    await sequelize.sync({ alter: true });
+    console.log("✅ All models synchronized.");
 
-    // ✅ RENDER FIX: Bind to '0.0.0.0' + explicit PORT
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Afritex server is running on port ${PORT}`);
+    // RENDER PORT BINDING - CRITICAL
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ Afritex server running on port ${PORT}`);
+      console.log(`✅ Full API ready: https://afritex.onrender.com/api`);
     });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully');
+      server.close(() => {
+        sequelize.close();
+      });
+    });
+
   } catch (error) {
-    console.error("Unable to start server:", error);
+    console.error("❌ Unable to start server:", error.message);
+    
+    // CRITICAL: Start server anyway for Render port detection
+    console.log("🔄 Starting server without DB for Render port detection...");
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`⚠️ Server running on port ${PORT} (DB offline)`);
+    });
   }
 };
 
