@@ -84,7 +84,7 @@ export const createStore = async (req, res, next) => {
 
 
 
-export const getStoreById = async (req, res, next) => {
+export const getStoresById = async (req, res, next) => {
   try {
     const { storeId } = req.params;
 

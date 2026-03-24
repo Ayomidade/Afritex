@@ -5,13 +5,7 @@ import sequelize from "../MySql/config/db.js";
 const OrderItem = sequelize.define(
   "OrderItem",
   {
-    orderItemId: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-    },
-    orderId: {
+  orderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

@@ -87,7 +87,7 @@ export const registerUser = async (req, res, next) => {
     // CHECK FOR EXISTING USER
     const existingUser = await User.findOne({ where: { email } });
 
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUsers = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(409).json({
         status: "Failed",
