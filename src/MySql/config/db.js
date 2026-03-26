@@ -3,14 +3,23 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: "mysql",
-  }
-);
+const databaseUrl = process.env.DATABASE_URL 
+
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: "mysql",
+  logging: false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 60000,
+    idle: 10000,
+  },
+  dialectOptions: {
+    connectTimeout: 60000,
+    ssl: {
+      rejectUnauthorized: false 
+    }
+  },
+});
 
 export default sequelize;
