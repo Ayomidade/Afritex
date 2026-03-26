@@ -12,12 +12,16 @@ import orderRouter from "./routes/order.route.js";
 import storeRouter from "./routes/store.route.js";
 import adminRouter from "./routes/admin.route.js";
 import cartRouter from "./routes/cart.route.js";
+import cors from "cors"
 
 const app = express();
 
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
+app.use(
+  cors({ optionsSuccessStatus: 200, origin: "*", credentials: "include" })
+);
 
 
 const authLimiter = rateLimit({
