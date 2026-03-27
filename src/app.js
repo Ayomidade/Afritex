@@ -13,12 +13,16 @@ import storeRouter from "./routes/store.route.js";
 import adminRouter from "./routes/admin.route.js";
 import cartRouter from "./routes/cart.route.js";
 import "../relationship.js";
+import cors from "cors"
 
 const app = express();
 
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
+app.use(
+  cors({ optionsSuccessStatus: 200, origin: "*", credentials: "include" })
+);
 
 
 const authLimiter = rateLimit({
@@ -35,7 +39,7 @@ app.get("/", (req, res) => {
   res.json({ status: "Success", message: "Welcome to Afritex API" });
 });
 
-// ✅ FIXED HERE
+// FIXED HERE
 app.use("/api/auth", authLimiter, authRouter);
 
 app.use("/api/user", userRouter);
