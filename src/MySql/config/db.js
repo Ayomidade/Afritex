@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const databaseUrl = process.env.DATABASE_URL 
+const databaseUrl = process.env.MYSQL_PUBLIC_URL;
+
 
 const sequelize = new Sequelize(databaseUrl, {
   dialect: "mysql",
@@ -17,8 +18,8 @@ const sequelize = new Sequelize(databaseUrl, {
   dialectOptions: {
     connectTimeout: 60000,
     ssl: {
-      rejectUnauthorized: false 
-    }
+      rejectUnauthorized: false,
+    },
   },
 });
 
