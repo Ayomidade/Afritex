@@ -1,10 +1,10 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../MySql/config/db.js";
 
-const User = sequelize.define(
-  "User",
+const Designer = sequelize.define(
+  "Designer",
   {
-    userId: {
+    designerId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
@@ -26,26 +26,20 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role: {
+    password: {
       type: DataTypes.STRING,
-      // defaultValue: "user",
       allowNull: false,
+    },
+    role: {
+      defaultValue: "designer",
     },
     country: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     profileImage: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
     // ✅ password reset fields
     resetToken: {
@@ -57,11 +51,27 @@ const User = sequelize.define(
       allowNull: true,
     },
     portfolio: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    totalProducts: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    // bio: {
+    //   type: DataTypes.TEXT,
+    //   allowNull: true,
+    // },
+    socialLinks: {
+      type: DataTypes.JSON,
       allowNull: true,
     },
   },
   { timestamps: true },
 );
 
-export default User;
+export default Designer;

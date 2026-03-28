@@ -4,7 +4,71 @@ import Store from "../models/store.model.js";
 import Product from "../models/product.model.js";
 import Order from "../models/order.model.js";
 import OrderItem from "../models/order_items.model.js";
-import { sendEmail, designerVerificationTemplate } from "../services/email.service.js";
+import {
+  sendEmail,
+  designerVerificationTemplate,
+} from "../services/email.service.js";
+import Admin from "../models/admin.model.js";
+import bcrypt from "bcryptjs";
+import JWT from "jsonwebtoken";
+
+/* =========================
+   USER MANAGEMENT
+========================= */
+export const createAdmin = async (req, res, next) => {
+  try {
+    const { fullname, password, email, phoneNumber } = req.body;
+
+    if (!fullname || !email || !password || !phoneNumber) {
+      const error = new Error("All fields are required.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // CHECK FOR EXISTING USER
+    const existingAdmin = await Admin.findAll();
+
+    if (existingAdmin) {
+      return res.status(409).json({
+        status: "Failed",
+        message: "An admin account already exists.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await Admin.create({
+      fullname,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+    });
+
+    const token = JWT.sign(
+      {
+        adminId: admin.adminId,
+        email: admin.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "2d" },
+    );
+
+    res.status(201).json({
+      status: "Success",
+      message: "Admin registered successfully",
+      data: {
+        admin: {
+          adminId: admin.adminId,
+          firstName: admin.fullname,
+          email: admin.email,
+        },
+      },
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /* =========================
    DASHBOARD STATS
@@ -140,7 +204,7 @@ export const getAllCustomers = async (req, res, next) => {
       plain.totalOrders = plain.orders.length;
       plain.totalSpent = plain.orders.reduce(
         (sum, order) => sum + (order.totalAmount || 0),
-        0
+        0,
       );
       return plain;
     });
@@ -193,7 +257,7 @@ export const getSingleCustomer = async (req, res, next) => {
     data.totalOrders = data.orders.length;
     data.totalSpent = data.orders.reduce(
       (sum, order) => sum + (order.totalAmount || 0),
-      0
+      0,
     );
 
     res.status(200).json({
@@ -246,9 +310,7 @@ export const verifyDesigners = async (req, res, next) => {
     }
 
     if (designer.isVerified) {
-      return res
-        .status(400)
-        .json({ message: "Designer is already verified." });
+      return res.status(400).json({ message: "Designer is already verified." });
     }
 
     await designer.update({ isVerified: true });

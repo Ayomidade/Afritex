@@ -5,7 +5,6 @@ dotenv.config();
 
 const databaseUrl = process.env.MYSQL_PUBLIC_URL;
 
-
 const sequelize = new Sequelize(databaseUrl, {
   dialect: "mysql",
   logging: false,

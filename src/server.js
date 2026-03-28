@@ -9,20 +9,20 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     console.log("Attempting database connection...");
-    console.log(`DB Config: ${process.env.DBHOST}:${process.env.DBPORT}`);
+    console.log(`DB Config: ${process.env.MYSQLHOST}:${process.env.MYSQLPORT}`);
 
     // Test connection with longer timeout
     await sequelize.authenticate();
     console.log("✅ Database connected successfully.");
 
     // Sync models (creates tables)
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log("✅ All models synchronized.");
 
     // RENDER PORT BINDING - CRITICAL
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Afritex server running on port ${PORT}`);
-      console.log(`✅ Full API ready: https://afritex.onrender.com/api`);
+      console.log(`✅ Full API ready: https://afritex.onrender.com/`);
     });
 
     // Graceful shutdown
