@@ -8,8 +8,7 @@ export const getUserProfile = async (req, res, next) => {
     const user = await User.findByPk(userId, {
       attributes: [
         "userId",
-        "firstName",
-        "lastName",
+        "fullname",
         "email",
         "phoneNumber",
         "role",
@@ -43,11 +42,10 @@ export const updateUserProfile = async (req, res, next) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const { firstName, lastName, phoneNumber } = req.body;
+    const { fullname, phoneNumber } = req.body;
 
     await user.update({
-      firstName: firstName || user.firstName,
-      lastName: lastName || user.lastName,
+      fullname: fullname || user.fullname,
       phoneNumber: phoneNumber || user.phoneNumber,
     });
 
@@ -87,8 +85,7 @@ export const getAllUsers = async (req, res, next) => {
     const users = await User.findAll({
       attributes: [
         "userId",
-        "firstName",
-        "lastName",
+        "fullname",
         "email",
         "phoneNumber",
         "role",
@@ -111,8 +108,7 @@ export const getUserById = async (req, res, next) => {
     const user = await User.findByPk(userId, {
       attributes: [
         "userId",
-        "firstName",
-        "lastName",
+        "fullname",
         "email",
         "phoneNumber",
         "role",

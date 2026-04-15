@@ -82,9 +82,9 @@ export const registerCustomer = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       // If there's a file uploaded, delete it from Cloudinary
-      if (req.file) {
-        await cloudinary.uploader.destroy(req.file.filename);
-      }
+      // if (req.file) {
+      //   await cloudinary.uploader.destroy(req.file.filename);
+      // }
       return res.status(400).json({
         status: "Failed",
         errors: errors.array().map((err) => ({
@@ -101,9 +101,9 @@ export const registerCustomer = async (req, res, next) => {
 
     if (existingUser) {
       // If there's a file uploaded, delete it from Cloudinary
-      if (req.file) {
-        await cloudinary.uploader.destroy(req.file.filename);
-      }
+      // if (req.file) {
+      //   await cloudinary.uploader.destroy(req.file.filename);
+      // }
       return res.status(409).json({
         status: "Failed",
         message: "An account with this email already exists.",
@@ -113,7 +113,7 @@ export const registerCustomer = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Get profile image URL if uploaded
-    const profileImage = req.file ? req.file.path : null;
+    // const profileImage = req.file ? req.file.path : null;
 
     const newUser = await User.create({
       fullname,
@@ -122,7 +122,7 @@ export const registerCustomer = async (req, res, next) => {
       phoneNumber,
       role: "customer",
       country,
-      profileImage,
+      // profileImage,
       isVerified: false,
     });
 
@@ -178,7 +178,7 @@ export const registerDesigner = async (req, res, next) => {
       });
     }
 
-    const { fullname, email, password, phoneNumber, country } = req.body;
+    const { fullname, email, password, phoneNumber, country, portfolio } = req.body;
 
     // Check for existing user
     const existingUser = await User.findOne({ where: { email } });
@@ -205,6 +205,7 @@ export const registerDesigner = async (req, res, next) => {
       country,
       profileImage,
       isVerified: false,
+      portfolio
     });
 
     const token = JWT.sign(
@@ -229,6 +230,8 @@ export const registerDesigner = async (req, res, next) => {
           role: designer.role,
           country: designer.country,
           profileImage: designer.profileImage,
+          isVerified: designer.isVerified,
+          portfolio: designer.portfolio
         },
       },
       token,
