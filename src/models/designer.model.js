@@ -31,6 +31,7 @@ const Designer = sequelize.define(
       allowNull: false,
     },
     role: {
+      type: DataTypes.STRING,
       defaultValue: "designer",
     },
     country: {

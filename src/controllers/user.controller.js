@@ -163,3 +163,40 @@ export const updateProfileImage = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUserDashboard = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findByPk(userId, {
+      attributes: [
+        "userId",
+        "fullname",
+        "role",
+        "profileImage",
+        "savedProducts",
+        "stats",
+      ],
+    }); // changed: load dashboard fields for customer
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        welcome: `Welcome back, ${user.fullname}!`,
+        summary: {
+          totalOrders: user.stats.totalOrders,
+          activeOrders: user.stats.activeOrders,
+          totalSales: user.stats.totalSales,
+          pendingOrders: user.stats.pendingOrders,
+        },
+        stats: user.stats,
+        savedProducts: user.savedProducts || [],
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

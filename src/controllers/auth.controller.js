@@ -94,7 +94,9 @@ export const registerCustomer = async (req, res, next) => {
       });
     }
 
-    const { fullname, email, password, phoneNumber, country } = req.body;
+    const { fullname, email, password, phoneNumber, country, bio, address } =
+      req.body; // changed: include bio/address from request body
+    const profileImage = req.file ? req.file.path : null; // changed: support uploaded profile image
 
     // Check for existing user
     const existingUser = await User.findOne({ where: { email } });
@@ -112,9 +114,6 @@ export const registerCustomer = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Get profile image URL if uploaded
-    // const profileImage = req.file ? req.file.path : null;
-
     const newUser = await User.create({
       fullname,
       email,
@@ -122,8 +121,21 @@ export const registerCustomer = async (req, res, next) => {
       phoneNumber,
       role: "customer",
       country,
-      // profileImage,
+      profileImage, // changed: save profile image for user
       isVerified: false,
+      bio: bio || null, // changed
+      address: address || null, // changed
+      portfolio: null, // changed: ensure portfolio field exists for customers
+      savedProducts: [], // changed: initialize saved products for dashboard UI
+      stats: {
+        totalProducts: 0,
+        totalOrders: 0,
+        totalSales: 0,
+        activeOrders: 0,
+        pendingOrders: 0,
+        countriesShopped: 0,
+        designersSupported: 0,
+      }, // changed: initialize dashboard stats
     });
 
     const token = JWT.sign(
@@ -148,6 +160,10 @@ export const registerCustomer = async (req, res, next) => {
           role: newUser.role,
           country: newUser.country,
           profileImage: newUser.profileImage,
+          bio: newUser.bio,
+          address: newUser.address,
+          savedProducts: newUser.savedProducts,
+          stats: newUser.stats,
         },
       },
       token,
@@ -178,7 +194,17 @@ export const registerDesigner = async (req, res, next) => {
       });
     }
 
-    const { fullname, email, password, phoneNumber, country, portfolio } = req.body;
+    const {
+      fullname,
+      email,
+      password,
+      phoneNumber,
+      country,
+      portfolio,
+      bio,
+      address,
+    } = req.body; // changed: include bio/address from request body
+    const profileImage = req.file ? req.file.path : null; // changed: support uploaded profile image
 
     // Check for existing user
     const existingUser = await User.findOne({ where: { email } });
@@ -193,9 +219,7 @@ export const registerDesigner = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const profileImage = req.file ? req.file.path : null;
 
-    // Create designer user
     const designer = await User.create({
       fullname,
       email,
@@ -203,9 +227,21 @@ export const registerDesigner = async (req, res, next) => {
       phoneNumber,
       role: "designer",
       country,
-      profileImage,
+      profileImage, // changed: save profile image for designer
       isVerified: false,
-      portfolio
+      bio: bio || null, // changed
+      address: address || null, // changed
+      portfolio: portfolio || null,
+      savedProducts: [], // changed: initialize saved products for designer record
+      stats: {
+        totalProducts: 0,
+        totalOrders: 0,
+        totalSales: 0,
+        activeOrders: 0,
+        pendingOrders: 0,
+        countriesShopped: 0,
+        designersSupported: 0,
+      }, // changed: initialize dashboard stats
     });
 
     const token = JWT.sign(
@@ -230,8 +266,11 @@ export const registerDesigner = async (req, res, next) => {
           role: designer.role,
           country: designer.country,
           profileImage: designer.profileImage,
-          isVerified: designer.isVerified,
-          portfolio: designer.portfolio
+          bio: designer.bio,
+          address: designer.address,
+          portfolio: designer.portfolio,
+          savedProducts: designer.savedProducts,
+          stats: designer.stats,
         },
       },
       token,
@@ -272,7 +311,7 @@ export const loginUser = async (req, res, next) => {
     if (!isMatch) {
       return res.status(401).json({
         status: "Failed",
-        message: "Invalid credentials.",
+        message: "Invalid credential.",
       });
     }
 
@@ -318,11 +357,12 @@ export const getCurrentUser = async (req, res, next) => {
         "phoneNumber",
         "country",
         "profileImage",
-        "isVerified",
-        "createdAt",
-        "updatedAt",
+        "bio",
+        "address",
+        "savedProducts",
+        "stats",
       ],
-    });
+    }); // changed: load UI profile fields
 
     if (!user) {
       return res.status(404).json({
@@ -333,7 +373,21 @@ export const getCurrentUser = async (req, res, next) => {
 
     return res.status(200).json({
       status: "Success",
-      data: user,
+      data: {
+        profile: {
+          userId: user.userId,
+          fullname: user.fullname,
+          email: user.email,
+          role: user.role,
+          phoneNumber: user.phoneNumber,
+          country: user.country,
+          profileImage: user.profileImage,
+          bio: user.bio,
+          address: user.address,
+        },
+        savedProducts: user.savedProducts || [],
+        stats: user.stats,
+      },
     });
   } catch (error) {
     next(error);
@@ -343,46 +397,42 @@ export const getCurrentUser = async (req, res, next) => {
 // ================= UPDATE USER PROFILE =================
 export const updateProfile = async (req, res, next) => {
   try {
-    const { fullname, phoneNumber, country } = req.body;
-    const user = await User.findByPk(req.user.userId);
+    const { fullname, phoneNumber, country, bio, address } = req.body;
+    const profileImage = req.file ? req.file.path : undefined; // changed: allow profile image update
 
+    const user = await User.findByPk(req.user.userId);
     if (!user) {
-      if (req.file) {
-        await cloudinary.uploader.destroy(req.file.filename);
-      }
       return res.status(404).json({
         status: "Failed",
         message: "User not found.",
       });
     }
 
-    const updateData = {};
-    if (fullname) updateData.fullname = fullname;
-    if (phoneNumber) updateData.phoneNumber = phoneNumber;
-    if (country) updateData.country = country;
+    await user.update({
+      fullname: fullname || user.fullname,
+      phoneNumber: phoneNumber || user.phoneNumber,
+      country: country || user.country,
+      bio: bio !== undefined ? bio : user.bio,
+      address: address !== undefined ? address : user.address,
+      profileImage: profileImage || user.profileImage,
+    });
 
-    // Handle profile image update
-    if (req.file) {
-      // Delete old image from Cloudinary if exists
-      if (user.profileImage) {
-        const publicId = user.profileImage.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(`afritex/users/${publicId}`);
-      }
-      updateData.profileImage = req.file.path;
-    }
-
-    await user.update(updateData);
-
-    res.status(200).json({
+    return res.status(200).json({
       status: "Success",
-      message: "Profile updated successfully",
       data: {
-        userId: user.userId,
-        fullname: user.fullname,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        country: user.country,
-        profileImage: user.profileImage,
+        user: {
+          userId: user.userId,
+          fullname: user.fullname,
+          email: user.email,
+          role: user.role,
+          phoneNumber: user.phoneNumber,
+          country: user.country,
+          profileImage: user.profileImage,
+          bio: user.bio,
+          address: user.address,
+          savedProducts: user.savedProducts,
+          stats: user.stats,
+        },
       },
     });
   } catch (error) {

@@ -56,12 +56,38 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
-    portfolio: {
+    bio: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    address: {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    portfolio: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    savedProducts: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [],
+    }, // changed: add savedProducts for dashboard UI
+    stats: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: {
+        totalProducts: 0,
+        totalOrders: 0,
+        totalSales: 0,
+        activeOrders: 0,
+        pendingOrders: 0,
+        countriesShopped: 0,
+        designersSupported: 0,
+      },
+    },
   },
-  { timestamps: true },
+  { tableName: "users", timestamps: true },
 );
 
 export default User;

@@ -1,20 +1,23 @@
-import { Router } from "express";
+import express from "express";
+// import auth from "../middleware/auth.middleware.js";
 import {
+  getUserProfile,
+  getUserDashboard,
+  updateUserProfile,
   deleteUserAccount,
   getAllUsers,
   getUserById,
-  getUserProfile,
   updateProfileImage,
-  updateUserProfile,
 } from "../controllers/user.controller.js";
-import { isAdmin } from "../middlewares/isAuthorized.js";
+
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { uploadProfileImage } from "../middlewares/upload.js";
 
-const userRouter = Router();
-userRouter.use(isAuthenticated);
+const userRouter = express.Router();
 
+userRouter.use(isAuthenticated);
 userRouter.get("/profile", getUserProfile);
+userRouter.get("/dashboard", getUserDashboard);
 
 userRouter.put("/profile/:id", updateUserProfile);
 
